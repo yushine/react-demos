@@ -4,6 +4,7 @@
   "description": "an example of react.js in server",
   "main": "server.js",
   "scripts": {
+    "build": "babel -d . src/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "ruanyf",
@@ -11,9 +12,10 @@
   "dependencies": {
     "browserify": "~9.0.3",
     "literalify": "~0.4.0",
-    "react": "~0.13.1"
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
   },
   "devDependencies": {
-    "react-tools": "~0.13.1"
+    "babel": "~5.8.21"
   }
 }

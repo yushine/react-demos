@@ -2,6 +2,11 @@ This is a collection of simple demos of React.js.
 
 These demos are purposely written in a simple and clear style. You will find no difficulty in following them to learn the powerful library.
 
+## Related Demos
+
+- [Webpack Demos](https://github.com/ruanyf/webpack-demos)
+- Flux Demos ([1](https://github.com/ruanyf/flux-for-stupid-people-demo), [2](https://github.com/ruanyf/flux-todomvc-demo))
+
 ## How to use
 
 First copy the repo into your disk.
@@ -19,11 +24,12 @@ Then play with the source files under the repo's demo* directories.
 <html>
   <head>
     <script src="../build/react.js"></script>
-    <script src="../build/JSXTransformer.js"></script>
+    <script src="../build/react-dom.js"></script>
+    <script src="../build/browser.min.js"></script>
   </head>
   <body>
     <div id="example"></div>
-    <script type="text/jsx">
+    <script type="text/babel">
 
       // ** Our code goes here! **
 
@@ -35,31 +41,34 @@ Then play with the source files under the repo's demo* directories.
 ## Index
 
 1. [Render JSX](#demo01-render-jsx-source)
-2. [Use JavaScript in JSX](#demo02-use-javascript-in-jsx-source)
-3. [Use array in JSX](#demo03-use-array-in-jsx-source)
-4. [Define a component](#demo04-define-a-component-source)
-5. [this.props.children](#demo05-thispropschildren-source)
-6. [Finding a DOM node](#demo6-finding-a-dom-node-source)
-7. [this.state](#demo07-thisstate-source)
-8. [Form](#demo08-form-source)
-9. [Component Lifecycle](#demo09-component-lifecycle-source)
-10. [Ajax](#demo10-ajax-source)
-11. [Server-side rendering](#demo11-server-side-rendering-source)
+1. [Use JavaScript in JSX](#demo02-use-javascript-in-jsx-source)
+1. [Use array in JSX](#demo03-use-array-in-jsx-source)
+1. [Define a component](#demo04-define-a-component-source)
+1. [this.props.children](#demo05-thispropschildren-source)
+1. [PropTypes](#demo06-proptypes-source)
+1. [Finding a DOM node](#demo07-finding-a-dom-node-source)
+1. [this.state](#demo08-thisstate-source)
+1. [Form](#demo09-form-source)
+1. [Component Lifecycle](#demo10-component-lifecycle-source)
+1. [Ajax](#demo11-ajax-source)
+1. [Server-side rendering](#demo12-server-side-rendering-source)
 
 ---
 
 ## Demo01: Render JSX ([source](https://github.com/ruanyf/react-demos/blob/master/demo01/index.html))
 
-The template syntax in React is called [JSX](http://facebook.github.io/react/docs/displaying-data.html#jsx-syntax). It is allowed in JSX to put HTML tags directly into JavaScript codes. React.render() is the method which translates JSX into HTML, and renders it into the specified DOM node.
+The template syntax in React is called [JSX](http://facebook.github.io/react/docs/displaying-data.html#jsx-syntax). It is allowed in JSX to put HTML tags directly into JavaScript codes. `ReactDOM.render()` is the method which translates JSX into HTML, and renders it into the specified DOM node.
 
 ```js
-React.render(
+ReactDOM.render(
   <h1>Hello, world!</h1>,
   document.getElementById('example')
 );
 ```
 
-Please be minded that you have to use `<script type="text/jsx">` to indicate JSX codes, and include `JSXTransformer.js` to actually perform the transformation in the browser.
+Attention, you have to use `<script type="text/babel">` to indicate JSX codes, and include `browser.min.js`, which is a [browser version](https://babeljs.io/docs/usage/browser/) of Babel and could be get inside a [babel-core](https://www.npmjs.com/package/babel-core) npm release, to actually perform the transformation in the browser.
+
+Before v0.14, React use `JSTransform.js` to translate `<script type="text/jsx">`. It has been deprecated ([more info](https://facebook.github.io/react/blog/2015/06/12/deprecating-jstransform-and-react-tools.html)).
 
 ## Demo02: Use JavaScript in JSX ([source](https://github.com/ruanyf/react-demos/blob/master/demo02/index.html))
 
@@ -68,7 +77,7 @@ You could also use JavaScript in JSX. It takes angle brackets (&lt;) as the begi
 ```js
 var names = ['Alice', 'Emily', 'Kate'];
 
-React.render(
+ReactDOM.render(
   <div>
   {
     names.map(function (name) {
@@ -89,7 +98,7 @@ var arr = [
   <h1>Hello world!</h1>,
   <h2>React is awesome</h2>,
 ];
-React.render(
+ReactDOM.render(
   <div>{arr}</div>,
   document.getElementById('example')
 );
@@ -97,7 +106,7 @@ React.render(
 
 ## Demo04: Define a component ([source](https://github.com/ruanyf/react-demos/blob/master/demo04/index.html))
 
-React.createClass() creates a component class, which implements a render method to return an component instance of the class. You don't need to call `new` on the class in order to get an instance, just use it as a normal HTML tag.
+`React.createClass()` creates a component class, which implements a render method to return an component instance of the class. You don't need to call `new` on the class in order to get an instance, just use it as a normal HTML tag.
 
 ```js
 var HelloMessage = React.createClass({
@@ -106,7 +115,7 @@ var HelloMessage = React.createClass({
   }
 });
 
-React.render(
+ReactDOM.render(
   <HelloMessage name="John" />,
   document.getElementById('example')
 );
@@ -133,7 +142,7 @@ var NotesList = React.createClass({
   }
 });
 
-React.render(
+ReactDOM.render(
   <NotesList>
     <span>hello</span>
     <span>world</span>
@@ -144,14 +153,76 @@ React.render(
 
 Please be minded that only if the component has more than one child node, you could take `this.props.children` as an array, otherwise `this.props.children.map` throws a TypeError.
 
-## Demo6: Finding a DOM node ([source](https://github.com/ruanyf/react-demos/blob/master/demo06/index.html))
+## Demo06: PropTypes ([source](https://github.com/ruanyf/react-demos/blob/master/demo06/index.html))
 
-Sometimes you need to reference a DOM node in a component. React gives you React.findDOMNode() to find it.
+Components have many specific attributes which are called ”props” in React and can be of any type.
+
+Sometimes you need a way to validate these props. You don't want users have the freedom to input anything into your components.
+
+React has a solution for this and it's called PropTypes.
+
+```javascript
+var MyTitle = React.createClass({
+  propTypes: {
+    title: React.PropTypes.string.isRequired,
+  },
+
+  render: function() {
+     return <h1> {this.props.title} </h1>;
+   }
+});
+```
+
+The above component of `Mytitle` has a props of `title`. PropTypes tells React that the title is required and its value should be string.
+
+Now we give `Title` a number value.
+
+```javascript
+var data = 123;
+
+ReactDOM.render(
+  <MyTitle title={data} />,
+  document.body
+);
+```
+
+It means the props doesn't pass the validation, and the console will show you a error message.
+
+```bash
+Warning: Failed propType: Invalid prop `title` of type `number` supplied to `MyTitle`, expected `string`.
+```
+
+Visit [official doc](http://facebook.github.io/react/docs/reusable-components.html) for more PropTypes options.
+
+P.S. If you want to give the props a default value, use `getDefaultProps()`.
+
+```javascript
+var MyTitle = React.createClass({
+  getDefaultProps : function () {
+    return {
+      title : 'Hello World'
+    };
+  },
+
+  render: function() {
+     return <h1> {this.props.title} </h1>;
+   }
+});
+
+ReactDOM.render(
+  <MyTitle />,
+  document.body
+);
+```
+
+## Demo07: Finding a DOM node ([source](https://github.com/ruanyf/react-demos/blob/master/demo07/index.html))
+
+Sometimes you need to reference a DOM node in a component. React gives you `ReactDOM.findDOMNode()` to find it.
 
 ```js
 var MyComponent = React.createClass({
   handleClick: function() {
-    React.findDOMNode(this.refs.myTextInput).focus();
+    ReactDOM.findDOMNode(this.refs.myTextInput).focus();
   },
   render: function() {
     return (
@@ -163,15 +234,15 @@ var MyComponent = React.createClass({
   }
 });
 
-React.render(
+ReactDOM.render(
   <MyComponent />,
   document.getElementById('example')
 );
 ```
 
-The desired DOM node should have a `ref` attribute, and `React.findDOMNode(this.refs.[refName])` would return the corresponding DOM node. Please be minded that you could do that only after this component has been mounted into the DOM, otherwise you get `null`.
+The desired DOM node should have a `ref` attribute, and `ReactDOM.findDOMNode(this.refs.[refName])` would return the corresponding DOM node. Please be minded that you could do that only after this component has been mounted into the DOM, otherwise you get `null`.
 
-## Demo07: this.state ([source](https://github.com/ruanyf/react-demos/blob/master/demo07/index.html))
+## Demo08: this.state ([source](https://github.com/ruanyf/react-demos/blob/master/demo08/index.html))
 
 React thinks of component as state machines, and uses `this.state` to hold component's state, `getInitialState()` to initialize `this.state`(invoked before a component is mounted), `this.setState()` to update `this.state` and re-render the component.
 
@@ -193,7 +264,7 @@ var LikeButton = React.createClass({
   }
 });
 
-React.render(
+ReactDOM.render(
   <LikeButton />,
   document.getElementById('example')
 );
@@ -201,7 +272,7 @@ React.render(
 
 You could use component attributes to register event handlers, just like `onClick`, `onKeyDown`, `onCopy`, etc. Official Document has all [supported events](http://facebook.github.io/react/docs/events.html#supported-events).
 
-## Demo08: Form ([source](https://github.com/ruanyf/react-demos/blob/master/demo08/index.html))
+## Demo09: Form ([source](https://github.com/ruanyf/react-demos/blob/master/demo09/index.html))
 
 According to React's design philosophy, `this.state` describes the state of component and is mutated via user interactions, and `this.props` describes the properties of component and is stable and immutable.
 
@@ -226,12 +297,12 @@ var Input = React.createClass({
   }
 });
 
-React.render(<Input/>, document.body);
+ReactDOM.render(<Input/>, document.body);
 ```
 
 More information on [official document](http://facebook.github.io/react/docs/forms.html).
 
-## Demo09: Component Lifecycle ([source](https://github.com/ruanyf/react-demos/blob/master/demo09/index.html))
+## Demo10: Component Lifecycle ([source](https://github.com/ruanyf/react-demos/blob/master/demo10/index.html))
 
 Components have three main parts of [their lifecycle](https://facebook.github.io/react/docs/working-with-the-browser.html#component-lifecycle): Mounting(being inserted into the DOM), Updating(being re-rendered) and Unmounting(being removed from the DOM). React provides hooks into these lifecycle part. `will` methods are called right before something happens, and `did` methods which are called right after something happens.
 
@@ -265,7 +336,7 @@ var Hello = React.createClass({
   }
 });
 
-React.render(
+ReactDOM.render(
   <Hello name="world"/>,
   document.body
 );
@@ -281,7 +352,7 @@ The following is [a whole list of lifecycle methods](http://facebook.github.io/r
 - componentWillReceiveProps(object nextProps): invoked when a mounted component receives new props.
 - shouldComponentUpdate(object nextProps, object nextState): invoked when a component decides whether any changes warrant an update to the DOM.
 
-## Demo10: Ajax ([source](https://github.com/ruanyf/react-demos/blob/master/demo10/index.html))
+## Demo11: Ajax ([source](https://github.com/ruanyf/react-demos/blob/master/demo11/index.html))
 
 How to get the data of a component from a server or an API provider? The answer is using Ajax to fetch data in the event handler of `componentDidMount`. When the server response arrives, store the data with `this.setState()` to trigger a re-render of your UI.
 
@@ -316,22 +387,22 @@ var UserGist = React.createClass({
   }
 });
 
-React.render(
+ReactDOM.render(
   <UserGist source="https://api.github.com/users/octocat/gists" />,
   document.body
 );
 ```
 
-## Demo11: Server-side rendering ([source](https://github.com/ruanyf/react-demos/tree/master/demo11/src))
+## Demo12: Server-side rendering ([source](https://github.com/ruanyf/react-demos/tree/master/demo11/src))
 
 This demo is copied from [github.com/mhart/react-server-example](https://github.com/mhart/react-server-example), but I rewrote it with JSX syntax.
 
 ```bash
-# install the dependencies in demo11 directory
+# install the dependencies in demo12 directory
 $ npm install
 
 # translate all jsx file in src subdirectory to js file
-$ jsx src/ .
+$ npm run build
 
 # launch http server
 $ node server.js
@@ -343,16 +414,16 @@ $ node server.js
 
 All above demos don't use JSX compilation for clarity. In production environment, ensure to precompile JSX files before putting them online.
 
-First, install the command-line tools.
+First, install the command-line tools [Babel](https://babeljs.io/docs/usage/cli/).
 
 ```bash
-$ npm install -g react-tools
+$ npm install -g babel
 ```
 
-Then precompile your JSX files(.jsx) into JavaScript(.js).
+Then precompile your JSX files(.jsx) into JavaScript(.js). Compiling the entire src directory and output it to the build directory, you may use the option `--out-dir` or `-d`.
 
 ```bash
-$ jsx -x src/ build/
+$ babel src --out-dir build
 ```
 
 Put the compiled JS files into HTML.
@@ -363,7 +434,8 @@ Put the compiled JS files into HTML.
   <head>
     <title>Hello React!</title>
     <script src="build/react.js"></script>
-    <!-- No need for JSXTransformer! -->
+    <script src="build/react-dom.js"></script>
+    <!-- No need for Browser.js! -->
   </head>
   <body>
     <div id="example"></div>

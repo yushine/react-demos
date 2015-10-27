@@ -2,33 +2,30 @@
 <html>
   <head>
     <script src="../build/react.js"></script>
-    <script src="../build/JSXTransformer.js"></script>
+    <script src="../build/react-dom.js"></script>
+    <script src="../build/browser.min.js"></script>
   </head>
   <body>
     <div id="example"></div>
-    <script type="text/jsx">
-var LikeButton = React.createClass({
-  getInitialState: function() {
-    return {liked: false};
-  },
-  handleClick: function(event) {
-    this.setState({liked: !this.state.liked});
+    <script type="text/babel">
+var MyComponent = React.createClass({
+  handleClick: function() {
+    ReactDOM.findDOMNode(this.refs.myTextInput).focus();
   },
   render: function() {
-    var text = this.state.liked ? 'like' : 'haven\'t liked';
     return (
-      <p onClick={this.handleClick}>
-        You {text} this. Click to toggle.
-      </p>
+      <div>
+        <input type="text" ref="myTextInput" />
+        <input type="button" value="Focus the text input" onClick={this.handleClick} />
+      </div>
     );
   }
 });
 
-React.render(
-  <LikeButton />,
+ReactDOM.render(
+  <MyComponent />,
   document.getElementById('example')
 );
     </script>
   </body>
 </html>
-
